@@ -1,11 +1,18 @@
-import styles from '@/styles/Home.module.css'
-import { Button } from '@mantine/core'
+import styles from './style.module.css'
+import TodoList from './TodoList';
+import { Center, Container } from '@mantine/core';
+
 
 export default function Home() {
   return (
-    <div>
-      <Button variant="filled"color="pink"> Hello </Button>
-      <Button fullWidth>Full width button</Button>
-    </div>  
+    <>
+    <Container style={{ width: '100%' }}>
+    <Center>
+      <h1> To-Do List </h1>
+    </Center>
+    <TodoList/>
+    </Container>
+   
+    </>
   )
 }
