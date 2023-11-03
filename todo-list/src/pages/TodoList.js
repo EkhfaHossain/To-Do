@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { Trash } from 'tabler-icons-react';
 import { Button, TextInput, Flex, Container,Paper, Space, List, ThemeIcon, Center, Box, ListItem } from "@mantine/core";
 import { IconCircleCheck, IconCircleDashed } from '@tabler/icons-react';
 
@@ -7,11 +8,17 @@ const TodoList = () => {
     const[task, setTask] = useState('');
     const[taskList, setTaskList] = useState([]);
   
-    const submitHandler = (e) =>{
+    const submitHandler = (e) => {
       e.preventDefault();
       setTaskList([...taskList, task]);
       console.log(taskList);
       setTask("");
+    }
+
+    const deleteHandler = (index) => {
+      let copyTask = [...taskList]
+      copyTask.splice(index, 1);
+      setTaskList(copyTask)
     }
 
 
@@ -33,16 +40,16 @@ const TodoList = () => {
     <Paper shadow="xl" radius="xl" withBorder p="xl">
     <Center>
     <List spacing="lg" size="sm" center
-    icon={
-      <ThemeIcon color="blue" size={24} radius="xl">
-        <IconCircleCheck size="1rem" />
-      </ThemeIcon>
-    }
   >
     
     {taskList.map((task, index) => (
       <List.Item key={index}>
         {task}
+       
+        <Trash size={24} strokeWidth={2} color={'black'} onClick={() => {
+          deleteHandler(index);
+        }} />
+ 
         </List.Item>
       ))}
     </List>
