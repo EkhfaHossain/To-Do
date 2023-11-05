@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Button, TextInput, Flex, Space, Box } from "@mantine/core";
-import { IconCircleCheck, IconTrash, IconCircleDashed, IconEdit } from '@tabler/icons-react';
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import dynamic from "next/dynamic";
+import { IconCircleCheck, IconTrash, IconEdit, IconCircleDashed } from '@tabler/icons-react';
 import { v4 as uuidv4 } from 'uuid';
+
+const LOCAL_STORAGE_KEY = 'tasks'
 
 const getLocalStorage = () => {
   if (typeof window !== "undefined") {
-    let list = localStorage.getItem('tasks');
+    let list = localStorage.getItem(LOCAL_STORAGE_KEY);
 
     if (list) {
       return JSON.parse(list);
@@ -30,7 +30,6 @@ const TodoList = () => {
 
     if (task.trim() !== "") {
       if (isEditing) {
-        // If editing, update the existing task
         setTaskList((prevTaskList) => {
           const updatedTasks = prevTaskList.map((item) => {
             if (item.id === editedTaskId) {
@@ -41,12 +40,10 @@ const TodoList = () => {
           return updatedTasks;
         });
 
-        // Reset the input and exit edit mode
         setTask("");
         setIsEditing(false);
         setEditedTaskId(null);
       } else {
-        // If not editing, add a new task
         setTaskList((prevTaskList) => [
           ...prevTaskList,
           { id: uuidv4(), text: task, status: false },
@@ -80,7 +77,7 @@ const TodoList = () => {
   };
 
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(taskList));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(taskList));
   }, [taskList]);
 
   return (
@@ -94,7 +91,7 @@ const TodoList = () => {
             radius="lg"
             placeholder="Enter Your Task"
             onChange={(e) => {
-              setTask(e.target.value)
+              setTask(e.target.value);
             }}
           />
 
@@ -108,114 +105,87 @@ const TodoList = () => {
 
       <Space h="xl" />
 
-      <DragDropContext>
-        <Droppable droppableId="taskList">
-          {(provided) => (
-            <Flex
-              align={"center"}
-              justify={"center"}
-              direction={"column"}
-              w={"100%"}
-              {...provided.droppableProps}
-              ref={provided.innerRef}
+      {taskList.map((task) => (
+        <Box
+          w={"100%"}
+          my={"lg"}
+        >
+          <Flex
+            align="center"
+            justify="space-between"
+            p={"10px"}
+            w={"100%"}
+          
+            style={{
+              border: "2px solid rgb(65, 148, 230)",
+              background: "white",
+              borderRadius: "10px",
+            }}
+          >
+            <span
+              style={{
+                textDecoration: task.status ? "line-through" : "none",
+                fontSize: "18px",
+              }}
             >
-              {taskList.map((task, index) => (
-                <Draggable
-                  key={`task-${task.id}`}
-                  draggableId={`task-${task.id}`}
-                  index={index}
-                >
-                  {(provided) => (
-                    <Box
-                      w={"100%"}
-                      my={"lg"}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      ref={provided.innerRef}
-                    >
-                      <Flex
-                        align="center"
-                        justify="space-between"
-                        p={"10px"}
-                        w={"100%"}
-                        radius="xl"
-                        style={{
-                          border: "2px solid rgb(65, 148, 230)",
-                          background: "white",
-                          borderRadius: "10px",
-                        }}
-                      >
-                        <span
-                          style={{
-                            textDecoration: task.status ? "line-through" : "none",
-                            fontSize: "18px",
-                          }}
-                        >
-                          {task.text}
-                        </span>
+              {task.text}
+            </span>
 
-                        <Flex>
-                          {task.status ? (
-                            <IconCircleCheck
-                              size={20}
-                              color="green"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => toggleTaskStatus(task.id)}
-                            />
-                          ) : (
-                            <IconCircleDashed
-                              size={20}
-                              color="gray"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => toggleTaskStatus(task.id)}
-                            />
-                          )}
+            <Flex>
+              {task.status ? (
+                <IconCircleCheck
+                  size={20}
+                  color="green"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => toggleTaskStatus(task.id)}
+                />
+              ) : (
+                <IconCircleDashed
+                  size={20}
+                  color="gray"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => toggleTaskStatus(task.id)}
+                />
+              )}
 
-                          <Space w="lg" />
-                          {task.id === editedTaskId ? (
-                            isEditing ? (
-                              <IconEdit
-                                size={20}
-                                color="blue"
-                                style={{ cursor: "pointer" }}
-                                onClick={submitHandler}
-                              />
-                            ) : (
-                              <IconEdit
-                                size={20}
-                                color="blue"
-                                style={{ cursor: "pointer" }}
-                                onClick={() => editHandler(task.id, task.text)}
-                              />
-                            )
-                          ) : (
-                            <IconEdit
-                              size={20}
-                              color="blue"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => editHandler(task.id, task.text)}
-                            />
-                          )}
-                          <Space w="lg" />
-                          <IconTrash
-                            size={20}
-                            color="red"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => deleteHandler(task.id)}
-                          />
-                        </Flex>
-                      </Flex>
-                    </Box>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+              <Space w="lg" />
+              {task.id === editedTaskId ? (
+                isEditing ? (
+                  <IconEdit
+                    size={20}
+                    color="blue"
+                    style={{ cursor: "pointer" }}
+                    onClick={submitHandler}
+                  />
+                ) : (
+                  <IconEdit
+                    size={20}
+                    color="blue"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => editHandler(task.id, task.text)}
+                  />
+                )
+              ) : (
+                <IconEdit
+                  size={20}
+                  color="blue"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => editHandler(task.id, task.text)}
+                />
+              )}
+              <Space w="lg" />
+              <IconTrash
+                size={20}
+                color="red"
+                style={{ cursor: "pointer" }}
+                onClick={() => deleteHandler(task.id)}
+              />
             </Flex>
-          )}
-        </Droppable>
-      </DragDropContext>
+          </Flex>
+        </Box>
+      ))}
     </>
   );
 };
 
-export default dynamic(() => Promise.resolve(TodoList), { ssr: false });
+export default TodoList;
