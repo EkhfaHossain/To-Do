@@ -9,9 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.4.2",
-    "@fortawesome/free-solid-svg-icons": "^6.4.2",
-    "@fortawesome/react-fontawesome": "^0.2.0",
     "@mantine/carousel": "^7.1.7",
     "@mantine/code-highlight": "^7.1.7",
     "@mantine/core": "^7.1.7",
@@ -32,7 +29,6 @@
     "embla-carousel-react": "^7.1.0",
     "next": "13.5.6",
     "react": "^18",
-    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18",
     "tabler-icons-react": "^1.56.0",
     "uuid": "^9.0.1"
