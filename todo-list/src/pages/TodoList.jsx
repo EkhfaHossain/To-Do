@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Button, TextInput, Flex, Space, Box } from "@mantine/core";
-import { IconCircleCheck, IconTrash, IconEdit, IconCircleDashed } from '@tabler/icons-react';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  IconCircleCheck,
+  IconTrash,
+  IconEdit,
+  IconCircleDashed,
+} from "@tabler/icons-react";
+import { v4 as uuidv4 } from "uuid";
+import styles from "./TodoList.module.css";
 
-const LOCAL_STORAGE_KEY = 'tasks'
+const LOCAL_STORAGE_KEY = "tasks";
 
-const getLocalStorage = () => {
+const getTasks = () => {
   if (typeof window !== "undefined") {
-    let list = localStorage.getItem(LOCAL_STORAGE_KEY);
-
+    const list = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (list) {
       return JSON.parse(list);
-    } else {
-      return [];
     }
   }
   return [];
@@ -20,40 +23,37 @@ const getLocalStorage = () => {
 
 const TodoList = () => {
   const [task, setTask] = useState("");
-  const [taskList, setTaskList] = useState(getLocalStorage());
-
+  const [taskList, setTaskList] = useState(getTasks());
   const [editedTaskId, setEditedTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-
-    if (task.trim() !== "") {
-      if (isEditing) {
-        setTaskList((prevTaskList) => {
-          const updatedTasks = prevTaskList.map((item) => {
-            if (item.id === editedTaskId) {
-              return { ...item, text: task };
-            }
-            return item;
-          });
-          return updatedTasks;
-        });
-
-        setTask("");
-        setIsEditing(false);
-        setEditedTaskId(null);
-      } else {
-        setTaskList((prevTaskList) => [
-          ...prevTaskList,
-          { id: uuidv4(), text: task, status: false },
-        ]);
-        setTask("");
-      }
-    }
+  const addTask = (text) => {
+    setTaskList((prevTaskList) => [
+      ...prevTaskList,
+      { id: uuidv4(), text, status: false },
+    ]);
   };
 
-  const deleteHandler = (id) => {
+  const editTask = (id, text) => {
+    setIsEditing(true);
+    setEditedTaskId(id);
+    setTask(text);
+  };
+
+  const saveTask = () => {
+    setTaskList((prevTaskList) => {
+      const updatedTasks = prevTaskList.map((item) =>
+        item.id === editedTaskId ? { ...item, text: task } : item
+      );
+      return updatedTasks;
+    });
+
+    setTask("");
+    setIsEditing(false);
+    setEditedTaskId(null);
+  };
+
+  const deleteTask = (id) => {
     setTaskList((prevTaskList) =>
       prevTaskList.filter((task) => task.id !== id)
     );
@@ -61,24 +61,27 @@ const TodoList = () => {
 
   const toggleTaskStatus = (id) => {
     setTaskList((prevTaskList) =>
-      prevTaskList.map((task) => {
-        if (task.id === id) {
-          return { ...task, status: !task.status };
-        }
-        return task;
-      })
+      prevTaskList.map((task) =>
+        task.id === id ? { ...task, status: !task.status } : task
+      )
     );
-  };
-
-  const editHandler = (id, text) => {
-    setIsEditing(true);
-    setEditedTaskId(id);
-    setTask(text);
   };
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(taskList));
   }, [taskList]);
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (task.trim() !== "") {
+      if (isEditing) {
+        saveTask();
+      } else {
+        addTask(task);
+        setTask("");
+      }
+    }
+  };
 
   return (
     <>
@@ -94,9 +97,7 @@ const TodoList = () => {
               setTask(e.target.value);
             }}
           />
-
           <Space w="lg" />
-
           <Button size="lg" radius="lg" onClick={submitHandler}>
             {isEditing ? "Save" : "Add"}
           </Button>
@@ -106,27 +107,18 @@ const TodoList = () => {
       <Space h="xl" />
 
       {taskList.map((task) => (
-        <Box
-          w={"100%"}
-          my={"lg"}
-        >
+        <Box w={"100%"} my={"lg"}>
           <Flex
             align="center"
             justify="space-between"
             p={"10px"}
             w={"100%"}
-          
-            style={{
-              border: "2px solid rgb(65, 148, 230)",
-              background: "white",
-              borderRadius: "10px",
-            }}
+            className={styles.taskContainer}
           >
             <span
-              style={{
-                textDecoration: task.status ? "line-through" : "none",
-                fontSize: "18px",
-              }}
+              className={`${styles.taskText} ${
+                task.status ? styles.completedTask : ""
+              }`}
             >
               {task.text}
             </span>
@@ -134,51 +126,35 @@ const TodoList = () => {
             <Flex>
               {task.status ? (
                 <IconCircleCheck
-                  size={20}
-                  color="green"
-                  style={{ cursor: "pointer" }}
+                  className={styles.iconCircleCheck}
                   onClick={() => toggleTaskStatus(task.id)}
                 />
               ) : (
                 <IconCircleDashed
-                  size={20}
-                  color="gray"
-                  style={{ cursor: "pointer" }}
+                  className={styles.iconCircleDashed}
                   onClick={() => toggleTaskStatus(task.id)}
                 />
               )}
-
               <Space w="lg" />
               {task.id === editedTaskId ? (
                 isEditing ? (
-                  <IconEdit
-                    size={20}
-                    color="blue"
-                    style={{ cursor: "pointer" }}
-                    onClick={submitHandler}
-                  />
+                  <IconEdit className={styles.iconEdit} onClick={saveTask} />
                 ) : (
                   <IconEdit
-                    size={20}
-                    color="blue"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => editHandler(task.id, task.text)}
+                    className={styles.iconEdit}
+                    onClick={() => editTask(task.id, task.text)}
                   />
                 )
               ) : (
                 <IconEdit
-                  size={20}
-                  color="blue"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => editHandler(task.id, task.text)}
+                  className={styles.iconEdit}
+                  onClick={() => editTask(task.id, task.text)}
                 />
               )}
               <Space w="lg" />
               <IconTrash
-                size={20}
-                color="red"
-                style={{ cursor: "pointer" }}
-                onClick={() => deleteHandler(task.id)}
+                className={styles.iconTrash}
+                onClick={() => deleteTask(task.id)}
               />
             </Flex>
           </Flex>
