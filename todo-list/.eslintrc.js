@@ -20,7 +20,5 @@ module.exports = {
     sourceType: "module",
   },
   plugins: ["react"],
-  rules: {
-    "react/jsx-key": 0,
-  },
+  rules: {},
 };

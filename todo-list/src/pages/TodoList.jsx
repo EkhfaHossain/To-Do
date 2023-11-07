@@ -73,13 +73,16 @@ const TodoList = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    if (task.trim() !== "") {
-      if (isEditing) {
-        saveTask();
-      } else {
-        addTask(task);
-        setTask("");
-      }
+
+    if (task.trim() === "") {
+      return;
+    }
+
+    if (isEditing) {
+      saveTask();
+    } else {
+      addTask(task);
+      setTask("");
     }
   };
 
@@ -105,7 +108,7 @@ const TodoList = () => {
       </form>
       <Space h="xl" />
       {taskList.map((task) => (
-        <Box w={"100%"} my={"lg"}>
+        <Box w={"100%"} my={"lg"} key={task.id}>
           <Flex
             align="center"
             justify="space-between"
