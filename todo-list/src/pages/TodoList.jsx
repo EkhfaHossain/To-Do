@@ -103,9 +103,7 @@ const TodoList = () => {
           </Button>
         </Flex>
       </form>
-
       <Space h="xl" />
-
       {taskList.map((task) => (
         <Box w={"100%"} my={"lg"}>
           <Flex
