@@ -116,9 +116,10 @@ const TodoList = () => {
             className={styles.taskContainer}
           >
             <span
-              className={`${styles.taskText} ${
-                task.status ? styles.completedTask : ""
-              }`}
+              style={{
+                textDecoration: task.status ? "line-through" : "none",
+                fontSize: "18px",
+              }}
             >
               {task.text}
             </span>
